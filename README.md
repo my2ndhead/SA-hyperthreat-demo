@@ -4,17 +4,17 @@ This document describes how the Demo works
 
 # Demo Data
 
--The demo is based on the DARPA R6.1 sample Dataset. We have used the TA-insiderthreat add-on for field extractions. 
+- The demo is based on the DARPA R6.1 sample Dataset. We have used the TA-insiderthreat add-on for field extractions. 
 
--Inside this data set, for this demo we focus on the insider R6.1-1
+- Inside this data set, for this demo we focus on the insider R6.1-1
 
--Excerpt from answers.tar.bz2/insiders.csv:
+- Excerpt from answers.tar.bz2/insiders.csv:
 
   `dataset	scenario	details	user	start	end`  
   
   `6.1	1	r6.1-1.csv	CSF2712	01/06/2011 04:51:28	01/12/2011 01:06:22`  
 
--Within this dataset we try to detect malicious activity. Excerpt from answers.tar.bz2/r6.1-1.csv:
+- Within this dataset we try to detect malicious activity. Excerpt from answers.tar.bz2/r6.1-1.csv:
 
   `device	{U4Z2-C3PG35WE-4721OTVQ}	01/06/2011 05:12:15	CSF2712	PC-3343	R:\;R:\CSF2712  `
   `file	{Z9V2-I8MN09XB-3302UJCM}	01/06/2011 05:22:43	CSF2712	PC-3343	R:\NLAGPC6N.jpg  `  
@@ -39,7 +39,7 @@ As we use Baselining functionality, this boiles down having two searches for eac
 
 # Search Setup
 ## Baselining Searches
--All the baselining searches in this demo are set up similarly
+- All the baselining searches in this demo are set up similarly
 
 `Line 1: index="insiderthreat" sourcetype="insiderthreat:logon" starttime="12/07/2010:00:00:00" endtime="01/06/2011:00:00:00" action=Logon (date_hour>=20 OR date_hour<=6) OR (date_wday="saturday" OR data_wday="sunday") `
 
@@ -71,7 +71,7 @@ Fill the baseline into a KV Store named r6.1-1-1 and tell the baselining algorit
 
 ## Alert Searches
 
--All alert searches follow a similar pattern.
+- All alert searches follow a similar pattern.
 
 `Line 1: search = index="insiderthreat" sourcetype="insiderthreat:logon" starttime="01/06/2011:00:00:00" endtime="01/07/2011:00:00:00" action=Logon (date_hour>=20 OR date_hour<=6) OR (date_wday="saturday" OR data_wday="sunday")`
 
