@@ -32,12 +32,13 @@ Within this dataset we try to detect malicious activity. Excerpt from answers.ta
   .
   .
 
-## Challenges
+# Challenges
 
 Because the test data was only available as historical data, we had to simulate schedule the alert in current time, but look at the historical timeranges.
 As we use Baselining functionality, this boiles down having two searches for each of the risk events. In production
 there would only be one baselining search and one alert search, for each risk event type and these would run on schedule constantly.
 
+# Search Setup
 ## Baselining Searches
 All the baselining searches in this demo are set up similarly
 
@@ -130,7 +131,14 @@ The macros can easily be integrated into the non-encrypted versions:
 
 `index="insiderthreat" sourcetype="insiderthreat:logon" starttime="01/06/2011:00:00:00" endtime="01/07/2011:00:00:00" action=Logon (date_hour>=20 OR date_hour<=6) OR (date_wday="saturday" OR data_wday="sunday") | stats dc(user) as count earliest(_time) as _time earliest(_raw) as _raw by user | 'create_user_hash'  |comparetobaseline config_name="r6.1-1-1-encrypted" value=user_hash count |search count:score=1 |table _time, _raw, user, user_hash | 'encrypt_user_raw' `
 
+# Risk Manager Setup
 
+## Base Setup
+
+- A role "riskanalyzer" has been created. This role imports the role "risk_manager" and "can_encrypt"
+- A role "hrlegal" has been created. This role imports the role "risk_manager" and "can_decrypt". The role does not have any access to indexes
+- All alert searches needed are calling the risk_handler.py alert script
+- All alert searches run under a user that has the role "risk_detecter"
 
 
 
