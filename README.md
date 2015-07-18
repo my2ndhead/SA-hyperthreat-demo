@@ -41,7 +41,6 @@ there would only be one baselining search and one alert search, for each risk ev
 ## Baselining Searches:
 All the baselining searches in this demo are set up similarly
 
-
 `Line 1: index="insiderthreat" sourcetype="insiderthreat:logon" starttime="12/07/2010:00:00:00" endtime="01/06/2011:00:00:00" action=Logon (date_hour>=20 OR date_hour<=6) OR (date_wday="saturday" OR data_wday="sunday") `
 
 Line 1: Search for login events during off-working hours over a timeperiod of 4 weeks (learning phase) before risk event happens
@@ -70,5 +69,28 @@ Bring the table into a format that is suitable for baselining
 
 Fill the baseline into a KV Store named r6.1-1-1 and tell the baselining algorithm to baseline the user's logon count
 
+## Alert Searches
+
+All alert searches follow a similar pattern.
+
+`Line 1: search = index="insiderthreat" sourcetype="insiderthreat:logon" starttime="01/06/2011:00:00:00" endtime="01/07/2011:00:00:00" action=Logon (date_hour>=20 OR date_hour<=6) OR (date_wday="saturday" OR data_wday="sunday")`
+
+Line 1: Search for login events during off-working hours over a particular day
+
+`Line 2:  | stats dc(user) as count earliest(_time) as _time earliest(_raw) as _raw by user`
+
+Line 2: Count if the user had a login that day
+
+`Line 3:  | comparetobaseline config_name="r6.1-1-1" value=user count`
+
+Line 3: Compare to the baseline using the KV store previously defined. Tell to look at the count values of the user field.
+
+`Line 4: | search count:score=1`
+
+If a user has more logins than usualy, we get a score=1 back. A score of 0 would be ok. A score of -1 would mean, this was the users first login (user not found in the baseline).
+
+`Line 5: | table _time, _raw, user`
+
+Select the columns to display and possibly store as contributing data.
 
 
