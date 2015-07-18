@@ -9,4 +9,4 @@ version = 6.2.3
 modtime = 1436768242.305150000
 access = read : [ * ]
 export = none
-owner = riskanalyzer
+owner = riskdetector
