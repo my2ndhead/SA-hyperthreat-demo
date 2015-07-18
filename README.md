@@ -38,7 +38,7 @@ Because the test data was only available as historical data, we had to simulate 
 As we use Baselining functionality, this boiles down having two searches for each of the risk events. In production
 there would only be one baselining search and one alert search, for each risk event type and these would run on schedule constantly.
 
-## Baselining Searches:
+## Baselining Searches
 All the baselining searches in this demo are set up similarly
 
 `Line 1: index="insiderthreat" sourcetype="insiderthreat:logon" starttime="12/07/2010:00:00:00" endtime="01/06/2011:00:00:00" action=Logon (date_hour>=20 OR date_hour<=6) OR (date_wday="saturday" OR data_wday="sunday") `
@@ -87,10 +87,50 @@ Line 3: Compare to the baseline using the KV store previously defined. Tell to l
 
 `Line 4: | search count:score=1`
 
-If a user has more logins than usualy, we get a score=1 back. A score of 0 would be ok. A score of -1 would mean, this was the users first login (user not found in the baseline).
+Line 4: If a user has more logins than usualy, we get a score=1 back. A score of 0 would be ok. A score of -1 would mean, this was the users first login (user not found in the baseline).
 
 `Line 5: | table _time, _raw, user`
 
-Select the columns to display and possibly store as contributing data.
+Line 5: Select the columns to display and possibly store as contributing data.
+
+
+## Encryption
+
+We have added a version of the searches that encrypts the data on the fly. There are two macros be have created
+
+### Macro "create_user_hash"
+
+`Line 1: eval user_hash=user`
+
+Line 1: Create a field user_hash to store the hash of the user 
+
+`Line 2: | hash algorithm=sha256 saltfile=/opt/splunk/etc/auth/splunk.secret user_hash `
+
+Line 2: Hash the user_hash field with sha256 and using the splunk.secret file as a salt.
+
+### Macro "encrypt_user_raw"
+
+`Line 1: crypt mode=e key=/opt/splunk/etc/apps/SA-hypercrypto/lib/public.pem user _raw`
+
+Line 1: Encrypt the user and the _raw fields using a specified public key
+
+`Line 2: | eval decrypt_command="crypt mode=d key=/opt/splunk/etc/apps/SA-hypercrypto/lib/private.pem user _raw" `
+
+Line 2: Add a note field "decrypt_command" to store the command about how to decrypt the data
+
+### How to use these macros
+
+The macros can easily be integrated into the non-encrypted versions:
+
+### Hashing Baselining search
+
+`index="insiderthreat" sourcetype="insiderthreat:logon" starttime="12/07/2010:00:00:00" endtime="01/06/2011:00:00:00" action=Logon (date_hour>=20 OR date_hour<=6) OR (date_wday="saturday" OR data_wday="sunday") | bucket span=1d _time | chart limit=0 dc(user) as count over _time by user | makecontinuous _time span=1d | fillnull | untable _time, user, count | 'create_user_hash'  | fillbaseline config_name="r6.1-1-1-encrypted" value=user_hash count`
+
+### Hashing and Encrypting Risk Alert Search
+
+`index="insiderthreat" sourcetype="insiderthreat:logon" starttime="01/06/2011:00:00:00" endtime="01/07/2011:00:00:00" action=Logon (date_hour>=20 OR date_hour<=6) OR (date_wday="saturday" OR data_wday="sunday") | stats dc(user) as count earliest(_time) as _time earliest(_raw) as _raw by user | 'create_user_hash'  |comparetobaseline config_name="r6.1-1-1-encrypted" value=user_hash count |search count:score=1 |table _time, _raw, user, user_hash | 'encrypt_user_raw' `
+
+
+
 
 
