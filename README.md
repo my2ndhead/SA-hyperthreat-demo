@@ -141,7 +141,7 @@ The macros can easily be integrated into the non-encrypted versions:
 - All alert searches run under the user "riskdetector" that has the role "riskdetector"
 - A user "riskanalyzer" is created with the role riskanalyzer
 - A user "riskdetector" is created with the role riskdetector
-- A user "hrlegal" is created with the role hrlegal. This user has also stored the password for the private key "private_aes256.pem" in the Splunk keystore.
+- A user "hrlegal" is created with the role hrlegal. This user has also stored the password for the private key "private_aes256.pem" in the Splunk keystore. NOTE: Due to limitation in the Splunk Password Key Store, hrlegal has "admin_all_objects"-capabilities. In real-life this right would be given just temporary. This is an open issue we will work around in a future release.
 - Under the risk score settings dashboard,we assign two score points to all risk alert searches, except the ones, where the baseline compare-search says, that a user did something for the first time. Here we assign only one point.
 
 # Risk Analysis Dashboards (Things you should try...)
